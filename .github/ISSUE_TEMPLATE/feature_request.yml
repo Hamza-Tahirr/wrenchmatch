@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an improvement for customers, mechanics or admins.
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Customer (requests, quotes, bookings)
+        - Mechanic (application, job board, quoting, bookings)
+        - Admin (approvals, matching, help desk, settings)
+        - Public pages (landing, help, sign up)
+        - Platform (hosting, performance, accessibility)
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who is affected and what is hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should happen instead? Mockups welcome.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Privacy, payments or launch constraints this touches (see docs/ARCHITECTURE.md).

@@ -1,0 +1,46 @@
+name: Bug report
+description: Something in WrenchMatch does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - Hosted site (wrenchmatch.vercel.app)
+        - Local app (localhost:3000)
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Signed in as
+      options:
+        - Signed out
+        - Customer
+        - Mechanic
+        - Admin
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      placeholder: /requests/…
+  - type: input
+    id: device
+    attributes:
+      label: Device, browser and theme
+      placeholder: e.g. iPhone 15 · Safari · light theme
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or console errors
+      description: Paste or drop them here. Never include passwords or tokens.

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Credential guard: refuses a push whose commits contain a secret (scripts/check-secrets.mjs),
+# including commits made with --no-verify.
+if ! command -v node >/dev/null 2>&1; then
+  echo "Credential guard: Node.js was not found, so the push was stopped to stay safe." >&2
+  exit 1
+fi
+exec node scripts/check-secrets.mjs --pre-push

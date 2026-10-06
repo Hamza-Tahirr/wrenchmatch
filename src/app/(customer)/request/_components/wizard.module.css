@@ -1,0 +1,138 @@
+/* Request wizard: direction-aware step entrance plus a short stagger of the step's fields.
+   Steps are shown and hidden with the `hidden` attribute (their inputs stay in the form),
+   and a CSS animation restarts whenever an element goes from display:none to shown. */
+
+.step {
+  animation: wm-step-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.step[data-direction="back"] {
+  animation-name: wm-step-in-back;
+}
+
+.fields > * {
+  animation: wm-field-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.fields > :nth-child(2) {
+  animation-delay: 50ms;
+}
+.fields > :nth-child(3) {
+  animation-delay: 100ms;
+}
+.fields > :nth-child(4) {
+  animation-delay: 150ms;
+}
+.fields > :nth-child(5) {
+  animation-delay: 200ms;
+}
+.fields > :nth-child(n + 6) {
+  animation-delay: 250ms;
+}
+
+@keyframes wm-step-in {
+  from {
+    opacity: 0;
+    transform: translate3d(32px, 0, 0);
+  }
+}
+
+@keyframes wm-step-in-back {
+  from {
+    opacity: 0;
+    transform: translate3d(-32px, 0, 0);
+  }
+}
+
+@keyframes wm-field-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+}
+
+/* The "sending" overlay: a radar sweep over concentric rings. Theme tokens only, so it
+   reads on the dark and the light theme alike. */
+.radar {
+  --radar: var(--color-neon-cyan);
+  position: relative;
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle, transparent 0 22%, color-mix(in oklab, var(--radar) 26%, transparent) 22.5% 23.5%,
+      transparent 24% 46%, color-mix(in oklab, var(--radar) 20%, transparent) 46.5% 47.5%, transparent 48% 70%,
+      color-mix(in oklab, var(--radar) 16%, transparent) 70.5% 71.5%, transparent 72%),
+    radial-gradient(circle, color-mix(in oklab, var(--color-brand-200) 70%, transparent),
+      color-mix(in oklab, var(--color-surface-2) 30%, transparent) 70%);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--radar) 38%, transparent),
+    0 0 48px -8px color-mix(in oklab, var(--radar) 55%, transparent);
+  overflow: hidden;
+}
+
+.radar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, color-mix(in oklab, var(--radar) 55%, transparent), transparent 70deg, transparent 360deg);
+  animation: wm-radar-sweep 1.6s linear infinite;
+}
+
+.radar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin: -0.3rem 0 0 -0.3rem;
+  border-radius: 9999px;
+  background: var(--color-brand-700);
+  box-shadow: 0 0 14px 4px color-mix(in oklab, var(--radar) 80%, transparent);
+}
+
+.blip {
+  position: absolute;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: var(--color-success-600);
+  box-shadow: 0 0 10px 2px color-mix(in oklab, var(--color-success-600) 80%, transparent);
+  opacity: 0;
+  animation: wm-blip 1.6s ease-out infinite;
+}
+
+@keyframes wm-radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wm-blip {
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step,
+  .fields > *,
+  .radar::before,
+  .blip {
+    animation: none;
+  }
+  .blip {
+    opacity: 1;
+  }
+}

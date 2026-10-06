@@ -1,0 +1,42 @@
+# dependencies
+/node_modules
+
+# portable toolchain used on this machine (see README)
+/.tools/
+
+# local SQLite database and private uploads (never commit)
+/.data/
+
+# testing
+/coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# next.js (.next-* are extra build folders made with NEXT_DIST_DIR; Tailwind also skips
+# git-ignored files, so their binary caches never reach the CSS class scan)
+/.next/
+/.next-*/
+/out/
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug and logs
+npm-debug.log*
+*.log
+
+# env files (secrets stay local; the template is committed)
+.env*
+!.env.example
+
+# vercel (project link written by the Vercel CLI)
+.vercel
+
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

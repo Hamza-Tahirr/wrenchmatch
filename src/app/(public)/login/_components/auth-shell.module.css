@@ -1,0 +1,69 @@
+/*
+ * Auth art panel. Dark theme: a full-bleed night panel (a banner on phones, pinned beside the
+ * form from lg) that fades into the page. Light theme: the same night scene in a rounded
+ * window with a soft shadow, so it never fades grey into the light canvas.
+ */
+.art {
+  position: relative;
+  height: 13rem;
+  overflow: hidden;
+  container-type: size;
+  border-bottom: 1px solid var(--color-line);
+  background: #050817;
+}
+
+.fade {
+  background: linear-gradient(180deg, transparent 55%, color-mix(in oklab, var(--color-canvas) 88%, transparent) 100%);
+}
+
+@media (min-width: 40rem) {
+  .art {
+    height: 16rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .art {
+    position: sticky;
+    top: 4rem;
+    height: calc(100svh - 4rem);
+    border-bottom: 0;
+    border-right: 1px solid var(--color-line);
+  }
+
+  .fade {
+    background: linear-gradient(180deg, transparent 45%, var(--color-canvas) 100%);
+  }
+}
+
+:global([data-theme="light"]) .art {
+  margin: 0.75rem 1rem 0;
+  border: 0;
+  border-radius: 1.5rem;
+  box-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.08),
+    0 26px 52px -32px rgb(30 64 175 / 0.55);
+}
+
+:global([data-theme="light"]) .fade {
+  background: linear-gradient(180deg, transparent 62%, rgb(5 8 23 / 0.5) 100%);
+}
+
+@media (min-width: 40rem) {
+  :global([data-theme="light"]) .art {
+    margin-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :global([data-theme="light"]) .art {
+    top: 5rem;
+    height: calc(100svh - 6rem);
+    margin: 1rem 0 1rem 1rem;
+    border-radius: 2rem;
+  }
+
+  :global([data-theme="light"]) .fade {
+    background: linear-gradient(180deg, transparent 40%, rgb(5 8 23 / 0.94) 100%);
+  }
+}

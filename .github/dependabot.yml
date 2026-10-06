@@ -1,0 +1,22 @@
+# Monthly dependency update proposals. Versions are pinned on purpose (package.json and the
+# allowScripts entries), so every bump arrives as a pull request that CI checks first.
+# Major versions (Next.js, React, TypeScript, ESLint, @types/node to match the Node 24 runtime,
+# ...) are planned upgrades done by hand, so Dependabot proposes only minor and patch updates.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

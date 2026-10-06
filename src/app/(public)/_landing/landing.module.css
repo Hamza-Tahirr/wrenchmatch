@@ -1,0 +1,247 @@
+/*
+ * Landing-only motion. Transform/opacity only; everything collapses to the final state
+ * under prefers-reduced-motion. The headline animates transform only (never opacity), so
+ * it is painted at first paint and stays the LCP candidate.
+ */
+
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* room for descenders inside the clipping box */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.wordInner {
+  display: inline-block;
+  animation: word-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes word-rise {
+  from {
+    transform: translate3d(0, 108%, 0) rotate(3deg);
+  }
+}
+
+.artIn {
+  animation: art-in 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+@keyframes art-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.985);
+  }
+}
+
+.fadeUp {
+  animation: fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+}
+
+.ping {
+  animation: ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* Slowly drifting conic light behind the closing call to action. */
+.orbit {
+  animation: orbit 18s linear infinite;
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordInner,
+  .artIn,
+  .fadeUp,
+  .ping,
+  .orbit {
+    animation: none;
+  }
+}
+
+/* Benefits bento: notification cards bob gently; the bell rings now and then. */
+.notif {
+  animation: notif-bob 5.6s ease-in-out infinite;
+}
+
+@keyframes notif-bob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+.ring {
+  transform-origin: 50% 10%;
+  animation: bell-ring 4.8s ease-in-out infinite;
+}
+
+@keyframes bell-ring {
+  0%,
+  78%,
+  100% {
+    transform: rotate(0deg);
+  }
+  82% {
+    transform: rotate(14deg);
+  }
+  86% {
+    transform: rotate(-12deg);
+  }
+  90% {
+    transform: rotate(8deg);
+  }
+  94% {
+    transform: rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notif,
+  .ring {
+    animation: none;
+  }
+}
+
+/*
+ * Hero art. Dark theme: the night scene bleeds into the page with masked edges (below the
+ * headline on phones, behind the right half from lg). Light theme: the same scene sits in a
+ * rounded "poster" window, so the night art never smears grey into the light canvas.
+ */
+.artFrame {
+  position: relative;
+  margin-top: 0.5rem;
+}
+
+.art {
+  position: relative;
+  width: 165%;
+  max-width: none;
+  margin-left: -60%;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 80%, transparent 100%);
+}
+
+/* Keeps the headline calm over the art on large screens (dark theme only). */
+.scrim {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .art {
+    width: 150%;
+    margin-left: -46%;
+  }
+}
+
+@media (min-width: 64rem) {
+  .artFrame {
+    position: static;
+    margin-top: 0;
+  }
+
+  .art {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    z-index: 0;
+    margin: 0;
+    width: min(100%, calc((100svh - 4rem) * 1.7));
+    mask-image:
+      linear-gradient(to right, transparent 0%, #000 16%),
+      linear-gradient(to bottom, transparent 0%, #000 10%, #000 84%, transparent 100%);
+    mask-composite: intersect;
+  }
+
+  .scrim {
+    display: block;
+  }
+}
+
+:global([data-theme="light"]) .artFrame {
+  margin: 2rem 1rem 0;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  background: #050817;
+  box-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.08),
+    0 34px 70px -38px rgb(30 64 175 / 0.55),
+    0 18px 36px -24px rgb(124 58 237 / 0.35);
+}
+
+:global([data-theme="light"]) .art {
+  width: 150%;
+  margin-left: -48%;
+  mask-image: none;
+}
+
+:global([data-theme="light"]) .scrim {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  :global([data-theme="light"]) .artFrame {
+    margin-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  /* A window on the right, clear of the headline column (30rem at lg, 32rem from xl). */
+  :global([data-theme="light"]) .artFrame {
+    position: absolute;
+    z-index: 0;
+    top: 1.5rem;
+    bottom: 3.75rem;
+    left: calc(max(0px, (100% - 80rem) / 2) + 34.5rem);
+    right: calc(max(0px, (100% - 80rem) / 2) + 2rem);
+    margin: 0;
+    border-radius: 2.25rem;
+  }
+
+  :global([data-theme="light"]) .art {
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: auto;
+    aspect-ratio: 8 / 5;
+    margin: 0;
+    mask-image: none;
+  }
+
+  :global([data-theme="light"]) .copy {
+    max-width: 30rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  :global([data-theme="light"]) .artFrame {
+    left: calc(max(0px, (100% - 80rem) / 2) + 36.5rem);
+  }
+
+  :global([data-theme="light"]) .copy {
+    max-width: 32rem;
+  }
+}

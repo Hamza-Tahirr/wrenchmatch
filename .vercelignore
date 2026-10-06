@@ -1,0 +1,40 @@
+# Files `vercel deploy` must not upload. Vercel installs dependencies and builds the app
+# itself, so only the source is needed: src/, public/, db/, scripts/, docs/ and the config
+# files in the project root. (Vercel always skips .git, .vercel, .env.local and node_modules
+# too; they are listed here so this file reads as the complete rule.)
+
+# Portable Node.js for this laptop (over 100 MB) and local helper scripts
+/.tools
+
+# Local SQLite database and private uploads: never deployed. The hosted site uses Turso and
+# Vercel Blob instead (docs/DEPLOY.md).
+/.data
+
+# Secrets. Production variables live in the Vercel project settings, not in files.
+.env*
+!.env.example
+
+# Dependencies and build output (including trial builds made with NEXT_DIST_DIR)
+/node_modules
+/.next
+/.next-*
+/out
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# Tests and their reports
+/tests
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+/coverage
+
+# Local tool state, logs and scratch files
+/.vercel
+/.git
+*.log
+.DS_Store
+/tmp
+/scratch

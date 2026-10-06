@@ -1,0 +1,8 @@
+// Shared look of text-like form controls: calm dark fields with a 3:1 border and a glowing
+// neon focus ring. 16px text on phones avoids iOS zoom-on-focus.
+export const controlClasses =
+  "block w-full rounded-xl border border-control bg-surface-2/80 text-base text-fg shadow-[inset_0_1px_0_0_oklch(1_0_0/0.04)] transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-fg-subtle hover:border-brand-400 focus-visible:border-neon-cyan focus-visible:bg-surface-2 focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--color-neon-cyan)_20%,transparent),0_0_24px_-6px_var(--color-neon-cyan)] focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-neon-cyan disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-danger-500 aria-[invalid=true]:focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--color-danger-500)_22%,transparent)] aria-[invalid=true]:focus-visible:outline-danger-500 sm:text-sm";
+
+/** The same look for a wrapper that contains a bare input (adornments). */
+export const controlWrapperClasses =
+  "flex w-full items-stretch rounded-xl border border-control bg-surface-2/80 shadow-[inset_0_1px_0_0_oklch(1_0_0/0.04)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-brand-400 focus-within:border-neon-cyan focus-within:bg-surface-2 focus-within:shadow-[0_0_0_3px_color-mix(in_oklab,var(--color-neon-cyan)_20%,transparent),0_0_24px_-6px_var(--color-neon-cyan)] focus-within:outline-1 focus-within:outline-offset-0 focus-within:outline-neon-cyan has-[[aria-invalid=true]]:border-danger-500 has-[:disabled]:opacity-60";

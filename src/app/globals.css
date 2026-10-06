@@ -1,0 +1,1252 @@
+@import "tailwindcss";
+
+/* `light:` / `dark:` follow the app theme (`<html data-theme>`), not the OS setting. */
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+@custom-variant dark (&:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *));
+
+/*
+ * WrenchMatch futuristic theme (Tailwind CSS 4, CSS-first config). Two themes:
+ *
+ *   dark  (default)  deep-space navy, neon accents. Tokens below in `@theme`.
+ *   light            "futuristic light": white / light blue-grey surfaces, crisp borders,
+ *                    soft layered shadows, deeper teal/indigo accents. Selected by
+ *                    `<html data-theme="light">` (root layout reads the `wm_theme` cookie;
+ *                    the ThemeToggle in src/components/theme switches it). Overrides live in
+ *                    `:root[data-theme="light"]` (layer base) and redefine every token.
+ *
+ * 1. Semantic tokens (use these in new code): canvas, surface, surface-2, elevated, line,
+ *    line-strong, fg, fg-muted, fg-subtle, on-brand, control, neon-cyan/blue/violet/pink,
+ *    brand-50…950 (cyan-blue), success/warning/danger-50…950. The scales keep their *roles*
+ *    in both themes: 50–200 = tinted fills/borders, 600–950 = readable ink, `on-brand` = ink
+ *    on brand/neon/tone fills (dark ink in dark, white in light).
+ * 2. Legacy light classes keep working: Tailwind's `white` and `slate-*` are remapped as an
+ *    inverted dark palette in dark (bg-white = a dark surface, text-slate-900 = near-white
+ *    text, text-white = dark ink for neon fills) and back to the normal palette in light.
+ *    Migrate to the semantic tokens anyway (recipe in docs/UI.md).
+ * 3. Utilities: glass, glass-strong, glass-lite, glow, glow-border, holo-text, text-glow,
+ *    aurora, grid-bg, noise, shimmer, reveal, card-hover, tabular. Their colours come from
+ *    `--wm-*` variables defined per theme below, so they work in both themes.
+ *
+ * Contrast (WCAG AA; OKLCH → sRGB → relative luminance).
+ * Dark: fg on canvas 17.9:1, fg-muted on surface 9.9:1, fg-subtle on elevated 5.9:1,
+ * brand-700 links on surface 11.8:1, tone-700 text on tone-50 tints ≥ 7.7:1, on-brand ink on
+ * brand/neon/danger fills ≥ 6:1, `control` borders ≥ 3.5:1 on every surface.
+ * Light: fg on canvas 16:1, fg-muted ≥ 7.6:1 and fg-subtle ≥ 5.3:1 on every surface,
+ * neon-cyan/blue/violet text ≥ 4.8:1 (also on their /10 tints), brand-700 links ≥ 6:1,
+ * tone-600 text ≥ 4.6:1, badges (tone-800 on tone/12) ≥ 7:1, white on brand/neon/tone-600
+ * fills ≥ 4.8:1, `control` borders ≥ 3.5:1, focus ring (neon-cyan) ≥ 5:1 on canvas.
+ */
+
+@theme static {
+  /* ── Surfaces and ink ─────────────────────────────────────────────────────────── */
+  --color-canvas: oklch(0.145 0.03 266);
+  --color-surface: oklch(0.19 0.035 265);
+  --color-surface-2: oklch(0.225 0.04 266);
+  --color-elevated: oklch(0.255 0.045 267);
+  --color-line: oklch(0.82 0.04 250 / 0.13);
+  --color-line-strong: oklch(0.82 0.05 245 / 0.26);
+  --color-fg: oklch(0.965 0.008 250);
+  --color-fg-muted: oklch(0.8 0.025 255);
+  --color-fg-subtle: oklch(0.7 0.03 258);
+  /* Dark ink for text on neon/brand fills. */
+  --color-on-brand: oklch(0.17 0.04 266);
+  /* Borders that identify form controls (WCAG 1.4.11 needs 3:1 against the surface). */
+  --color-control: oklch(0.55 0.05 258);
+
+  /* ── Neon accents (sparingly: glows, focus, highlights) ──────────────────────── */
+  --color-neon-cyan: oklch(0.86 0.15 200);
+  --color-neon-blue: oklch(0.7 0.18 258);
+  --color-neon-violet: oklch(0.7 0.2 295);
+  --color-neon-pink: oklch(0.74 0.19 350);
+
+  /* ── Brand: cyan → blue, dark first (low numbers = tinted fills, high = light ink) ── */
+  --color-brand-50: oklch(0.24 0.05 245);
+  --color-brand-100: oklch(0.28 0.07 244);
+  --color-brand-200: oklch(0.38 0.09 241);
+  --color-brand-300: oklch(0.5 0.11 237);
+  --color-brand-400: oklch(0.63 0.13 231);
+  --color-brand-500: oklch(0.72 0.14 224);
+  --color-brand-600: oklch(0.78 0.14 216);
+  --color-brand-700: oklch(0.84 0.13 210);
+  --color-brand-800: oklch(0.88 0.1 208);
+  --color-brand-900: oklch(0.92 0.07 206);
+  --color-brand-950: oklch(0.96 0.035 205);
+
+  /* ── Semantic tones tuned for dark (50–200 tints/borders, 600+ light ink) ────── */
+  --color-success-50: oklch(0.25 0.05 165);
+  --color-success-100: oklch(0.29 0.065 165);
+  --color-success-200: oklch(0.4 0.09 164);
+  --color-success-300: oklch(0.52 0.12 163);
+  --color-success-400: oklch(0.64 0.15 162);
+  --color-success-500: oklch(0.7 0.16 161);
+  --color-success-600: oklch(0.76 0.16 160);
+  --color-success-700: oklch(0.83 0.14 162);
+  --color-success-800: oklch(0.88 0.11 163);
+  --color-success-900: oklch(0.92 0.08 165);
+  --color-success-950: oklch(0.96 0.04 165);
+
+  --color-warning-50: oklch(0.26 0.045 75);
+  --color-warning-100: oklch(0.3 0.06 75);
+  --color-warning-200: oklch(0.42 0.09 75);
+  --color-warning-300: oklch(0.55 0.12 75);
+  --color-warning-400: oklch(0.68 0.14 75);
+  --color-warning-500: oklch(0.75 0.15 75);
+  --color-warning-600: oklch(0.8 0.15 76);
+  --color-warning-700: oklch(0.86 0.13 82);
+  --color-warning-800: oklch(0.9 0.1 86);
+  --color-warning-900: oklch(0.93 0.08 90);
+  --color-warning-950: oklch(0.97 0.04 92);
+
+  --color-danger-50: oklch(0.25 0.06 20);
+  --color-danger-100: oklch(0.29 0.08 20);
+  --color-danger-200: oklch(0.4 0.12 20);
+  --color-danger-300: oklch(0.52 0.16 21);
+  --color-danger-400: oklch(0.62 0.19 22);
+  --color-danger-500: oklch(0.68 0.19 22);
+  --color-danger-600: oklch(0.72 0.18 22);
+  --color-danger-700: oklch(0.79 0.14 20);
+  --color-danger-800: oklch(0.85 0.11 18);
+  --color-danger-900: oklch(0.9 0.08 15);
+  --color-danger-950: oklch(0.95 0.04 15);
+
+  /* ── Legacy light palette, inverted for dark (keeps old pages readable) ────────── */
+  --color-white: oklch(0.19 0.035 265);
+  --color-slate-50: oklch(0.215 0.038 265);
+  --color-slate-100: oklch(0.25 0.04 264);
+  --color-slate-200: oklch(0.3 0.04 262);
+  --color-slate-300: oklch(0.4 0.04 260);
+  --color-slate-400: oklch(0.62 0.035 258);
+  --color-slate-500: oklch(0.7 0.03 257);
+  --color-slate-600: oklch(0.79 0.025 255);
+  --color-slate-700: oklch(0.86 0.02 254);
+  --color-slate-800: oklch(0.92 0.014 252);
+  --color-slate-900: oklch(0.965 0.008 250);
+  --color-slate-950: oklch(0.985 0.004 250);
+
+  /* ── Depth and glow (values per theme: `--wm-shadow-*` in the base layer below) ──
+   * Tailwind inlines a shadow token into its utility, so the tokens point at variables
+   * that each theme defines; `shadow-glow` etc. then follow the theme. */
+  --shadow-glow-sm: var(--wm-shadow-glow-sm);
+  --shadow-glow: var(--wm-shadow-glow);
+  --shadow-glow-lg: var(--wm-shadow-glow-lg);
+  --shadow-glow-violet: var(--wm-shadow-glow-violet);
+  --shadow-glow-success: var(--wm-shadow-glow-success);
+  --shadow-glow-danger: var(--wm-shadow-glow-danger);
+  --shadow-elevated: var(--wm-shadow-elevated);
+
+  /* ── Motion ───────────────────────────────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-fade-in: wm-fade-in 0.5s var(--ease-out-expo) both;
+  --animate-slide-up: wm-slide-up 0.6s var(--ease-out-expo) both;
+  --animate-slide-down: wm-slide-down 0.35s var(--ease-out-expo) both;
+  --animate-scale-in: wm-scale-in 0.45s var(--ease-out-expo) both;
+  --animate-shimmer: wm-shimmer 1.8s linear infinite;
+  --animate-float: wm-float 7s ease-in-out infinite;
+  --animate-pulse-ring: wm-pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+  --animate-glow-pulse: wm-glow-pulse 3.2s ease-in-out infinite;
+  --animate-spin-slow: spin 9s linear infinite;
+  --animate-holo: wm-holo 10s ease-in-out infinite alternate;
+}
+
+/* next/font sets --font-* on <html>; the fallbacks keep a system stack if it is absent. */
+@theme inline {
+  --font-sans:
+    var(--font-geist-sans, ui-sans-serif), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    var(--font-geist-mono, ui-monospace), ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --font-display:
+    var(--font-space-grotesk, var(--font-geist-sans, ui-sans-serif)), ui-sans-serif,
+    system-ui, sans-serif;
+}
+
+/* ── Keyframes (top level so plain CSS utilities can use them too) ─────────────── */
+@keyframes wm-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes wm-slide-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+}
+@keyframes wm-slide-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+@keyframes wm-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes wm-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes wm-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+@keyframes wm-pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.85;
+  }
+  80%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@keyframes wm-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes wm-holo {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+@keyframes wm-aurora {
+  0% {
+    transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, 2%, 0) rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2%, 4%, 0) rotate(-6deg) scale(1.02);
+  }
+}
+@keyframes wm-grid-pan {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 44px, 0);
+  }
+}
+@keyframes wm-border-spin {
+  to {
+    --wm-angle: 360deg;
+  }
+}
+@keyframes wm-tab-in {
+  from {
+    transform: scaleX(0.2);
+    opacity: 0;
+  }
+}
+@keyframes wm-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.98);
+  }
+}
+@keyframes wm-reveal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+@keyframes wm-toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+@keyframes wm-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes wm-sheet-up {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+
+@property --wm-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* ── Theme variables ──────────────────────────────────────────────────────────────────
+ * Dark values first (`:root`), then the light theme (`:root[data-theme="light"]`), which
+ * redefines every colour token from `@theme` plus the `--wm-*` effect variables. Both sit in
+ * the base layer, which comes after Tailwind's theme layer, so the light values win. */
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    /* Shadows and glows (referenced by the `--shadow-*` tokens). */
+    --wm-shadow-glow-sm:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 28%, transparent),
+      0 0 16px -4px color-mix(in oklab, var(--color-neon-cyan) 45%, transparent);
+    --wm-shadow-glow:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 32%, transparent),
+      0 0 32px -6px color-mix(in oklab, var(--color-neon-cyan) 50%, transparent);
+    --wm-shadow-glow-lg:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 36%, transparent),
+      0 0 72px -10px color-mix(in oklab, var(--color-neon-cyan) 55%, transparent);
+    --wm-shadow-glow-violet:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-violet) 34%, transparent),
+      0 0 36px -6px color-mix(in oklab, var(--color-neon-violet) 50%, transparent);
+    --wm-shadow-glow-success:
+      0 0 0 1px color-mix(in oklab, var(--color-success-600) 32%, transparent),
+      0 0 28px -6px color-mix(in oklab, var(--color-success-600) 45%, transparent);
+    --wm-shadow-glow-danger:
+      0 0 0 1px color-mix(in oklab, var(--color-danger-600) 32%, transparent),
+      0 0 28px -6px color-mix(in oklab, var(--color-danger-600) 45%, transparent);
+    --wm-shadow-elevated:
+      inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 24px 48px -20px oklch(0 0 0 / 0.8),
+      0 2px 6px -2px oklch(0 0 0 / 0.5);
+    /* Sticky header: glass fill at the top of the page / once it scrolls, and its shadow. */
+    --wm-header-bg: color-mix(in oklab, var(--color-canvas) 65%, transparent);
+    --wm-header-bg-scrolled: color-mix(in oklab, var(--color-canvas) 80%, transparent);
+    --wm-shadow-header: 0 12px 40px -20px oklch(0 0 0 / 0.9);
+    /* Hover lift on clickable cards. */
+    --wm-shadow-card-hover:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 22%, transparent),
+      0 18px 44px -18px color-mix(in oklab, var(--color-neon-cyan) 38%, transparent);
+
+    /* Glass panels. */
+    --wm-glass-fill: color-mix(in oklab, var(--color-surface) 66%, transparent);
+    --wm-glass-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0.015) 40%);
+    --wm-glass-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.07), 0 18px 40px -24px oklch(0 0 0 / 0.85);
+    --wm-glass-strong-fill: color-mix(in oklab, var(--color-elevated) 88%, transparent);
+    --wm-glass-strong-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.07), oklch(1 0 0 / 0.02) 45%);
+    --wm-glass-lite-fill: color-mix(in oklab, var(--color-surface) 82%, transparent);
+    --wm-glass-lite-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.045), oklch(1 0 0 / 0.01) 50%);
+    --wm-glass-lite-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.05), 0 14px 32px -24px oklch(0 0 0 / 0.9);
+
+    /* Page backdrop, aurora, grid, holographic text, text glow. */
+    --wm-backdrop:
+      radial-gradient(60rem 36rem at 8% -12%, oklch(0.55 0.16 245 / 0.2), transparent 62%),
+      radial-gradient(48rem 30rem at 100% 4%, oklch(0.5 0.2 295 / 0.16), transparent 60%),
+      radial-gradient(56rem 40rem at 50% 115%, oklch(0.55 0.13 205 / 0.1), transparent 65%);
+    --wm-aurora:
+      radial-gradient(38% 52% at 18% 32%, oklch(0.62 0.15 220 / 0.32), transparent 70%),
+      radial-gradient(34% 46% at 82% 18%, oklch(0.55 0.2 295 / 0.3), transparent 70%),
+      radial-gradient(42% 50% at 62% 92%, oklch(0.55 0.17 258 / 0.26), transparent 70%);
+    --wm-grid-line: oklch(0.82 0.06 230 / 0.07);
+    --wm-holo: linear-gradient(
+      100deg,
+      oklch(0.95 0.03 220) 0%,
+      var(--color-neon-cyan) 18%,
+      oklch(0.9 0.06 250) 34%,
+      oklch(0.78 0.16 290) 50%,
+      var(--color-neon-cyan) 66%,
+      oklch(0.95 0.03 220) 82%,
+      var(--color-neon-cyan) 100%
+    );
+    --wm-text-glow:
+      0 0 18px color-mix(in oklab, var(--color-neon-cyan) 45%, transparent),
+      0 0 2px color-mix(in oklab, var(--color-neon-cyan) 30%, transparent);
+    --wm-noise-opacity: 0.05;
+    --wm-noise-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+
+    /* Skeleton shimmer, dialog scrim, scrollbar, selection, button sweep. */
+    --wm-shimmer-base: color-mix(in oklab, var(--color-slate-200) 70%, transparent);
+    --wm-shimmer-sheen: linear-gradient(
+      90deg,
+      transparent,
+      oklch(0.85 0.08 220 / 0.1) 40%,
+      oklch(0.9 0.1 210 / 0.16) 50%,
+      oklch(0.85 0.08 220 / 0.1) 60%,
+      transparent
+    );
+    --wm-scrim: oklch(0.1 0.03 266 / 0.72);
+    --wm-scrollbar: oklch(0.42 0.05 260);
+    --wm-selection: color-mix(in oklab, var(--color-neon-cyan) 32%, transparent);
+    --wm-map-icon-filter: invert(1) brightness(1.15);
+    --wm-map-gesture-bg: oklch(0.12 0.03 266 / 0.72);
+    /* Map tones for HTML swatches (WebGL layers use MAP_TONE_HEX in src/components/map/geo.ts). */
+    --wm-map-cyan: #3ee3f5;
+    --wm-map-blue: #5f8dff;
+    --wm-map-violet: #a77bff;
+    --wm-map-success: #45d69e;
+    --wm-map-warning: #f3b84f;
+    --wm-map-danger: #ff6e72;
+    --wm-map-neutral: #9aa6bf;
+    --wm-theme-color: #070b17;
+  }
+
+  /* ── Light theme: "futuristic light" ─────────────────────────────────────────────── */
+  :root[data-theme="light"] {
+    color-scheme: light;
+
+    /* Surfaces and ink: white cards on a very light blue-grey canvas, deep navy ink. */
+    --color-canvas: oklch(0.972 0.008 255);
+    --color-surface: oklch(1 0 0);
+    --color-surface-2: oklch(0.962 0.01 255);
+    --color-elevated: oklch(1 0 0);
+    --color-line: oklch(0.4 0.04 262 / 0.13);
+    --color-line-strong: oklch(0.4 0.05 262 / 0.22);
+    --color-fg: oklch(0.22 0.035 266);
+    --color-fg-muted: oklch(0.42 0.035 262);
+    --color-fg-subtle: oklch(0.5 0.03 260);
+    --color-on-brand: oklch(1 0 0);
+    --color-control: oklch(0.6 0.035 258);
+
+    /* Accents: deeper teal / indigo / violet so they read as text (AA) on light surfaces. */
+    --color-neon-cyan: oklch(0.505 0.105 220);
+    --color-neon-blue: oklch(0.5 0.19 264);
+    --color-neon-violet: oklch(0.5 0.21 293);
+    --color-neon-pink: oklch(0.56 0.21 355);
+
+    /* Brand and tones: light-first scales (50–200 tints, 600+ deep ink). */
+    --color-brand-50: oklch(0.97 0.018 225);
+    --color-brand-100: oklch(0.94 0.035 225);
+    --color-brand-200: oklch(0.885 0.06 226);
+    --color-brand-300: oklch(0.8 0.09 228);
+    --color-brand-400: oklch(0.68 0.115 230);
+    --color-brand-500: oklch(0.53 0.12 228);
+    --color-brand-600: oklch(0.5 0.115 232);
+    --color-brand-700: oklch(0.46 0.11 238);
+    --color-brand-800: oklch(0.4 0.095 242);
+    --color-brand-900: oklch(0.34 0.08 246);
+    --color-brand-950: oklch(0.27 0.06 250);
+
+    --color-success-50: oklch(0.975 0.022 165);
+    --color-success-100: oklch(0.945 0.045 165);
+    --color-success-200: oklch(0.89 0.075 164);
+    --color-success-300: oklch(0.81 0.105 163);
+    --color-success-400: oklch(0.71 0.13 162);
+    --color-success-500: oklch(0.6 0.13 162);
+    --color-success-600: oklch(0.52 0.115 162);
+    --color-success-700: oklch(0.47 0.1 164);
+    --color-success-800: oklch(0.41 0.085 165);
+    --color-success-900: oklch(0.36 0.07 166);
+    --color-success-950: oklch(0.28 0.05 168);
+
+    --color-warning-50: oklch(0.977 0.025 85);
+    --color-warning-100: oklch(0.95 0.055 85);
+    --color-warning-200: oklch(0.9 0.095 83);
+    --color-warning-300: oklch(0.84 0.125 80);
+    --color-warning-400: oklch(0.76 0.145 72);
+    --color-warning-500: oklch(0.68 0.15 65);
+    --color-warning-600: oklch(0.54 0.125 58);
+    --color-warning-700: oklch(0.5 0.115 55);
+    --color-warning-800: oklch(0.44 0.095 52);
+    --color-warning-900: oklch(0.38 0.08 50);
+    --color-warning-950: oklch(0.29 0.06 48);
+
+    --color-danger-50: oklch(0.972 0.018 18);
+    --color-danger-100: oklch(0.94 0.04 18);
+    --color-danger-200: oklch(0.885 0.075 19);
+    --color-danger-300: oklch(0.81 0.115 20);
+    --color-danger-400: oklch(0.7 0.17 22);
+    --color-danger-500: oklch(0.575 0.2 25);
+    --color-danger-600: oklch(0.53 0.2 26);
+    --color-danger-700: oklch(0.48 0.18 26);
+    --color-danger-800: oklch(0.42 0.15 25);
+    --color-danger-900: oklch(0.37 0.12 24);
+    --color-danger-950: oklch(0.28 0.08 22);
+
+    /* Legacy palette back to normal (bg-white = white card, text-white = white ink). */
+    --color-white: oklch(1 0 0);
+    --color-slate-50: oklch(0.984 0.003 248);
+    --color-slate-100: oklch(0.968 0.007 248);
+    --color-slate-200: oklch(0.929 0.013 255);
+    --color-slate-300: oklch(0.869 0.022 253);
+    --color-slate-400: oklch(0.704 0.04 257);
+    --color-slate-500: oklch(0.554 0.046 257);
+    --color-slate-600: oklch(0.446 0.043 257);
+    --color-slate-700: oklch(0.372 0.044 257);
+    --color-slate-800: oklch(0.279 0.041 260);
+    --color-slate-900: oklch(0.208 0.042 266);
+    --color-slate-950: oklch(0.129 0.042 265);
+
+    /* Soft layered shadows; glows become coloured shadows. */
+    --wm-shadow-glow-sm:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 22%, transparent),
+      0 6px 16px -6px color-mix(in oklab, var(--color-neon-cyan) 38%, transparent);
+    --wm-shadow-glow:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 26%, transparent),
+      0 12px 30px -10px color-mix(in oklab, var(--color-neon-cyan) 40%, transparent);
+    --wm-shadow-glow-lg:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 28%, transparent),
+      0 28px 64px -20px color-mix(in oklab, var(--color-neon-cyan) 42%, transparent);
+    --wm-shadow-glow-violet:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-violet) 26%, transparent),
+      0 12px 30px -10px color-mix(in oklab, var(--color-neon-violet) 36%, transparent);
+    --wm-shadow-glow-success:
+      0 0 0 1px color-mix(in oklab, var(--color-success-600) 26%, transparent),
+      0 10px 26px -10px color-mix(in oklab, var(--color-success-600) 38%, transparent);
+    --wm-shadow-glow-danger:
+      0 0 0 1px color-mix(in oklab, var(--color-danger-600) 26%, transparent),
+      0 10px 26px -10px color-mix(in oklab, var(--color-danger-600) 38%, transparent);
+    --wm-shadow-elevated:
+      inset 0 1px 0 0 oklch(1 0 0 / 0.9), 0 1px 2px 0 oklch(0.3 0.04 262 / 0.06),
+      0 10px 24px -10px oklch(0.3 0.05 262 / 0.16), 0 30px 60px -28px oklch(0.3 0.06 262 / 0.24);
+    /* More opaque on light, so dark illustrations scrolling underneath do not smudge it. */
+    --wm-header-bg: color-mix(in oklab, var(--color-canvas) 78%, transparent);
+    --wm-header-bg-scrolled: color-mix(in oklab, var(--color-canvas) 93%, transparent);
+    --wm-shadow-header: 0 1px 0 0 oklch(0.4 0.04 262 / 0.06), 0 10px 30px -18px oklch(0.3 0.05 262 / 0.28);
+    --wm-shadow-card-hover:
+      0 0 0 1px color-mix(in oklab, var(--color-neon-cyan) 20%, transparent),
+      0 18px 40px -18px color-mix(in oklab, var(--color-neon-cyan) 34%, transparent),
+      0 4px 12px -6px oklch(0.3 0.05 262 / 0.12);
+
+    /* Glass that works on light: frosted white, crisp hairline, soft shadow. */
+    --wm-glass-fill: color-mix(in oklab, var(--color-surface) 72%, transparent);
+    --wm-glass-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.75), oklch(1 0 0 / 0.25) 45%);
+    --wm-glass-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 0.9), 0 1px 2px 0 oklch(0.3 0.04 262 / 0.05),
+      0 16px 36px -22px oklch(0.3 0.06 262 / 0.28);
+    --wm-glass-strong-fill: color-mix(in oklab, var(--color-elevated) 92%, transparent);
+    --wm-glass-strong-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.8), oklch(1 0 0 / 0.3) 45%);
+    --wm-glass-lite-fill: color-mix(in oklab, var(--color-surface) 90%, transparent);
+    --wm-glass-lite-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.7), oklch(1 0 0 / 0) 55%);
+    --wm-glass-lite-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 0.9), 0 1px 2px 0 oklch(0.3 0.04 262 / 0.05),
+      0 12px 28px -22px oklch(0.3 0.06 262 / 0.3);
+
+    --wm-backdrop:
+      radial-gradient(60rem 36rem at 8% -12%, oklch(0.86 0.08 220 / 0.55), transparent 62%),
+      radial-gradient(48rem 30rem at 100% 4%, oklch(0.85 0.09 295 / 0.4), transparent 60%),
+      radial-gradient(56rem 40rem at 50% 115%, oklch(0.88 0.07 200 / 0.45), transparent 65%);
+    --wm-aurora:
+      radial-gradient(38% 52% at 18% 32%, oklch(0.84 0.1 215 / 0.55), transparent 70%),
+      radial-gradient(34% 46% at 82% 18%, oklch(0.83 0.11 295 / 0.45), transparent 70%),
+      radial-gradient(42% 50% at 62% 92%, oklch(0.85 0.09 258 / 0.45), transparent 70%);
+    --wm-grid-line: oklch(0.42 0.06 250 / 0.085);
+    --wm-holo: linear-gradient(
+      100deg,
+      oklch(0.3 0.06 262) 0%,
+      var(--color-neon-cyan) 18%,
+      oklch(0.42 0.15 262) 34%,
+      oklch(0.47 0.21 293) 50%,
+      var(--color-neon-cyan) 66%,
+      oklch(0.3 0.06 262) 82%,
+      var(--color-neon-cyan) 100%
+    );
+    --wm-text-glow: 0 0 14px color-mix(in oklab, var(--color-neon-cyan) 22%, transparent);
+    --wm-noise-opacity: 0.04;
+    --wm-noise-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.12 0 0 0 0 0.2 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+
+    --wm-shimmer-base: color-mix(in oklab, var(--color-slate-200) 80%, transparent);
+    --wm-shimmer-sheen: linear-gradient(
+      90deg,
+      transparent,
+      oklch(1 0 0 / 0.5) 40%,
+      oklch(1 0 0 / 0.8) 50%,
+      oklch(1 0 0 / 0.5) 60%,
+      transparent
+    );
+    --wm-scrim: oklch(0.28 0.04 262 / 0.38);
+    --wm-scrollbar: oklch(0.75 0.025 258);
+    --wm-selection: color-mix(in oklab, var(--color-neon-cyan) 22%, transparent);
+    --wm-map-icon-filter: none;
+    --wm-map-gesture-bg: oklch(0.99 0.004 255 / 0.82);
+    --wm-map-cyan: #0a87a8;
+    --wm-map-blue: #2f5fd6;
+    --wm-map-violet: #7445d9;
+    --wm-map-success: #0d9668;
+    --wm-map-warning: #d07a0a;
+    --wm-map-danger: #d63a3f;
+    --wm-map-neutral: #64748b;
+    --wm-theme-color: #f2f6fb;
+  }
+
+  html {
+    /* keeps #anchored sections clear of the sticky header (and a notch, see viewport-fit) */
+    scroll-padding-top: calc(5.5rem + env(safe-area-inset-top));
+    background-color: var(--color-canvas);
+    scrollbar-color: var(--wm-scrollbar) transparent;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    /* viewport-fit=cover (root layout): keep content clear of notches in landscape. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Deep-space backdrop: soft neon glows fixed behind every page (one composited layer). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--wm-backdrop), var(--color-canvas);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One glowing focus ring for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-neon-cyan);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--wm-selection);
+    color: var(--color-fg);
+  }
+
+  ::placeholder {
+    color: var(--color-fg-subtle);
+    opacity: 1;
+  }
+
+  dialog::backdrop {
+    background-color: var(--wm-scrim);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  summary {
+    cursor: pointer;
+  }
+
+  /* Browser autofill would otherwise paint a light box inside dark inputs. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-fg);
+    caret-color: var(--color-fg);
+    box-shadow: 0 0 0 1000px var(--color-surface-2) inset;
+    transition: background-color 9999s ease-out;
+  }
+
+  video {
+    background-color: oklch(0.1 0.02 266);
+  }
+
+  hr {
+    border-color: var(--color-line);
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────────────────────────────── */
+
+/* Frosted glass panel: translucent fill, backdrop blur, 1px luminous border. */
+@utility glass {
+  background-color: var(--wm-glass-fill);
+  background-image: var(--wm-glass-sheen);
+  border: 1px solid var(--color-line);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: var(--wm-glass-shadow);
+}
+
+/* Denser glass for menus, dialogs and toasts (stays readable over anything). */
+@utility glass-strong {
+  background-color: var(--wm-glass-strong-fill);
+  background-image: var(--wm-glass-strong-sheen);
+  border: 1px solid var(--color-line-strong);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: var(--wm-shadow-elevated);
+}
+
+/* Glass look without backdrop blur: cheap enough for long lists. */
+@utility glass-lite {
+  background-color: var(--wm-glass-lite-fill);
+  background-image: var(--wm-glass-lite-sheen);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--wm-glass-lite-shadow);
+}
+
+@utility glow {
+  box-shadow: var(--wm-shadow-glow);
+}
+
+@utility text-glow {
+  text-shadow: var(--wm-text-glow);
+}
+
+/* Animated conic neon border (1px). The element needs a border radius of its own. */
+@utility glow-border {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(
+      from var(--wm-angle),
+      transparent 0deg,
+      color-mix(in oklab, var(--color-neon-cyan) 90%, transparent) 50deg,
+      color-mix(in oklab, var(--color-neon-violet) 90%, transparent) 110deg,
+      transparent 170deg,
+      transparent 230deg,
+      color-mix(in oklab, var(--color-neon-blue) 70%, transparent) 300deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: wm-border-spin 7s linear infinite;
+  }
+}
+
+/* Holographic gradient text for headings. */
+@utility holo-text {
+  background-image: var(--wm-holo);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: wm-holo 10s ease-in-out infinite alternate;
+
+  @media (forced-colors: active) {
+    background: none;
+    color: CanvasText;
+  }
+}
+
+/* Animated aurora / gradient-mesh behind a section's content (uses ::before). */
+@utility aurora {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -12% -8%;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--wm-aurora);
+    animation: wm-aurora 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+}
+
+/* Faint animated grid behind a section's content (uses ::after; fades out at the edges). */
+@utility grid-bg {
+  position: relative;
+  isolation: isolate;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -44px 0 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--wm-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--wm-grid-line) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 75%);
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 75%);
+    animation: wm-grid-pan 9s linear infinite;
+  }
+}
+
+/* Film grain for a decorative layer: <div aria-hidden className="noise absolute inset-0" />. */
+@utility noise {
+  pointer-events: none;
+  background-image: var(--wm-noise-image);
+  opacity: var(--wm-noise-opacity);
+}
+
+/* Shimmering placeholder (skeletons, loading bars). */
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--wm-shimmer-base);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: var(--wm-shimmer-sheen);
+    animation: wm-shimmer 1.8s linear infinite;
+  }
+}
+
+/* Hover lift + glow for interactive cards (transform/opacity/shadow only). */
+@utility card-hover {
+  transition:
+    transform 0.25s var(--ease-out-expo),
+    box-shadow 0.25s var(--ease-out-expo),
+    border-color 0.25s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-3px);
+      border-color: color-mix(in oklab, var(--color-neon-cyan) 40%, transparent);
+      box-shadow: var(--wm-shadow-card-hover);
+    }
+  }
+  &:active {
+    transform: translateY(-1px) scale(0.995);
+  }
+}
+
+/* Scroll-linked reveal (CSS scroll timelines; static and visible where unsupported). */
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    animation: wm-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 160px;
+  }
+}
+@utility reveal-scale {
+  @supports (animation-timeline: view()) {
+    animation: wm-reveal-scale linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 160px;
+  }
+}
+
+/* Stagger with trigger="inView": each direct child reveals as it scrolls into view. */
+@utility stagger-reveal {
+  @supports (animation-timeline: view()) {
+    & > * {
+      animation: wm-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 140px;
+    }
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* CSS stagger for direct children (Stagger component): 60ms apart, capped at 12 steps. */
+@utility stagger-children {
+  & > * {
+    animation: wm-slide-up 0.6s var(--ease-out-expo) both;
+  }
+  & > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+  & > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+  & > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+  & > :nth-child(5) {
+    animation-delay: 240ms;
+  }
+  & > :nth-child(6) {
+    animation-delay: 300ms;
+  }
+  & > :nth-child(7) {
+    animation-delay: 360ms;
+  }
+  & > :nth-child(8) {
+    animation-delay: 420ms;
+  }
+  & > :nth-child(9) {
+    animation-delay: 480ms;
+  }
+  & > :nth-child(10) {
+    animation-delay: 540ms;
+  }
+  & > :nth-child(11) {
+    animation-delay: 600ms;
+  }
+  & > :nth-child(n + 12) {
+    animation-delay: 660ms;
+  }
+}
+
+/* ── Map chrome, markers and popups (created outside React) ──────────────────────────
+ * Unlayered on purpose: MapLibre's own stylesheet is unlayered, and unlayered rules beat
+ * any @layer rule, so these overrides rely on specificity (`.wm-map …`) instead. */
+.wm-map .maplibregl-ctrl-group {
+  background: color-mix(in oklab, var(--color-elevated) 90%, transparent);
+  border: 1px solid var(--color-line-strong);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+}
+.wm-map .maplibregl-ctrl-group:not(:empty) {
+  box-shadow: var(--shadow-elevated);
+}
+.wm-map .maplibregl-ctrl-group button {
+  width: 2.125rem;
+  height: 2.125rem;
+}
+.wm-map .maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--color-line);
+}
+@media (pointer: coarse) {
+  .wm-map .maplibregl-ctrl-group button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+.wm-map .maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: var(--wm-map-icon-filter);
+}
+.wm-map .maplibregl-ctrl button:not(:disabled):hover {
+  background-color: color-mix(in oklab, var(--color-fg) 7%, transparent);
+}
+.wm-map .maplibregl-ctrl-attrib,
+.wm-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: color-mix(in oklab, var(--color-canvas) 80%, transparent);
+  color: var(--color-fg-muted);
+  font-size: 11px;
+}
+.wm-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+}
+.wm-map .maplibregl-ctrl-attrib a {
+  color: var(--color-fg-muted);
+}
+.wm-map .maplibregl-ctrl-attrib a:hover {
+  color: var(--color-fg);
+}
+.wm-map .maplibregl-ctrl-attrib-button {
+  filter: var(--wm-map-icon-filter);
+  background-color: transparent;
+}
+.wm-map .maplibregl-cooperative-gesture-screen {
+  background: var(--wm-map-gesture-bg);
+  color: var(--color-fg);
+  font-size: 0.95rem;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.wm-map .maplibregl-popup-content {
+  background: color-mix(in oklab, var(--color-elevated) 95%, transparent);
+  color: var(--color-fg);
+  border: 1px solid var(--color-line-strong);
+  border-radius: 0.875rem;
+  padding: 0.75rem 2.25rem 0.75rem 0.875rem;
+  box-shadow: var(--shadow-elevated), var(--shadow-glow-sm);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  animation: wm-scale-in 0.25s var(--ease-out-expo) both;
+}
+.wm-map .maplibregl-popup-tip {
+  display: none;
+}
+.wm-map .maplibregl-popup-close-button {
+  top: 0.375rem;
+  right: 0.375rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  color: var(--color-fg-muted);
+  font-size: 1.125rem;
+  line-height: 1;
+}
+.wm-map .maplibregl-popup-close-button:hover {
+  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  color: var(--color-fg);
+}
+
+/* MapLibre positions markers absolutely; do not override `position` here. */
+.wm-marker {
+  --wm-tone: var(--color-neon-cyan);
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+.wm-marker[data-tone="violet"] {
+  --wm-tone: var(--color-neon-violet);
+}
+.wm-marker[data-tone="blue"] {
+  --wm-tone: var(--color-neon-blue);
+}
+.wm-marker[data-tone="success"] {
+  --wm-tone: var(--color-success-600);
+}
+.wm-marker[data-tone="warning"] {
+  --wm-tone: var(--color-warning-600);
+}
+.wm-marker[data-tone="danger"] {
+  --wm-tone: var(--color-danger-600);
+}
+.wm-marker[data-tone="neutral"] {
+  --wm-tone: var(--color-slate-500);
+}
+.wm-marker-dot {
+  position: relative;
+  z-index: 1;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, oklch(1 0 0 / 0.95), var(--wm-tone) 55%);
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--wm-tone) 30%, transparent),
+    0 0 18px 2px color-mix(in oklab, var(--wm-tone) 70%, transparent);
+  transition: transform 0.2s var(--ease-spring);
+}
+.wm-marker[data-kind="home"] .wm-marker-dot {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 0.4rem;
+  transform: rotate(45deg);
+}
+.wm-marker-pulse {
+  position: absolute;
+  inset: 0.65rem;
+  border-radius: 9999px;
+  border: 2px solid var(--wm-tone);
+  opacity: 0;
+  pointer-events: none;
+}
+.wm-marker[data-pulse="true"] .wm-marker-pulse {
+  animation: wm-pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+.wm-marker-label {
+  position: absolute;
+  top: calc(100% - 0.35rem);
+  left: 50%;
+  transform: translateX(var(--wm-label-x, -50%));
+  white-space: nowrap;
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-canvas) 84%, transparent);
+  border: 1px solid color-mix(in oklab, var(--wm-tone) 45%, transparent);
+  box-shadow: 0 0 12px -4px color-mix(in oklab, var(--wm-tone) 70%, transparent);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s var(--ease-out-expo);
+}
+.wm-marker[data-label="hover"] .wm-marker-label {
+  opacity: 0;
+  transform: translate(var(--wm-label-x, -50%), -4px);
+}
+.wm-marker[data-label="hover"]:hover .wm-marker-label,
+.wm-marker[data-label="hover"]:focus-visible .wm-marker-label,
+.wm-marker[data-label="hover"][aria-pressed="true"] .wm-marker-label {
+  opacity: 1;
+  transform: translateX(var(--wm-label-x, -50%));
+}
+/* Near the map's left/right edge the chip hangs from the marker's side instead (map-view.tsx). */
+.wm-marker[data-align="start"] {
+  --wm-label-x: 0%;
+}
+.wm-marker[data-align="start"] .wm-marker-label {
+  left: 0.15rem;
+}
+.wm-marker[data-align="end"] {
+  --wm-label-x: 0%;
+}
+.wm-marker[data-align="end"] .wm-marker-label {
+  left: auto;
+  right: 0.15rem;
+}
+.wm-marker:hover,
+.wm-marker:focus-visible,
+.wm-marker[aria-pressed="true"] {
+  z-index: 2;
+}
+.wm-marker:hover .wm-marker-dot,
+.wm-marker:focus-visible .wm-marker-dot,
+.wm-marker[aria-pressed="true"] .wm-marker-dot {
+  transform: scale(1.35);
+}
+.wm-marker[data-kind="home"]:hover .wm-marker-dot,
+.wm-marker[data-kind="home"]:focus-visible .wm-marker-dot,
+.wm-marker[data-kind="home"][aria-pressed="true"] .wm-marker-dot {
+  transform: rotate(45deg) scale(1.3);
+}
+.wm-marker[aria-pressed="true"] .wm-marker-label {
+  border-color: var(--wm-tone);
+}
+.wm-marker:focus-visible {
+  outline-offset: 0;
+}
+
+/* ── Theme switch (src/components/theme/theme-toggle.tsx) ─────────────────────────────
+ * With View Transitions the new theme is revealed as a circle growing from the toggle
+ * (the script animates `clip-path` on the new snapshot). While switching, transitions are
+ * off so the new snapshot shows final colours. Fallback: a short colour cross-fade. */
+html.wm-theme-switching *:not(.wm-tt-part),
+html.wm-theme-switching *::before,
+html.wm-theme-switching *::after {
+  transition: none !important;
+}
+html.wm-theme-switching::view-transition-old(root),
+html.wm-theme-switching::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.wm-theme-switching::view-transition-group(root) {
+  animation-duration: 0s;
+}
+html.wm-theme-fading,
+html.wm-theme-fading *,
+html.wm-theme-fading *::before,
+html.wm-theme-fading *::after {
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    color 0.28s ease,
+    fill 0.28s ease,
+    stroke 0.28s ease,
+    box-shadow 0.28s ease !important;
+  transition-delay: 0s !important;
+}
+
+/* Theme toggle icon: moon (dark theme) ↔ sun (light theme). Transform/opacity only. */
+.wm-tt-icon {
+  overflow: visible;
+  color: oklch(0.88 0.075 282);
+  filter: drop-shadow(0 0 6px oklch(0.7 0.2 295 / 0.55));
+}
+:root[data-theme="light"] .wm-tt-icon {
+  color: oklch(0.64 0.17 52);
+  filter: drop-shadow(0 1px 4px oklch(0.7 0.17 60 / 0.45));
+}
+.wm-tt-part {
+  transform-origin: 12px 12px;
+  transition:
+    transform 0.6s var(--ease-spring),
+    opacity 0.3s ease;
+}
+.wm-tt-rays {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.3);
+}
+.wm-tt-stars {
+  transition-delay: 0.15s;
+}
+:root[data-theme="light"] .wm-tt-core {
+  transform: scale(0.52);
+}
+:root[data-theme="light"] .wm-tt-bite {
+  transform: translate(8px, -8px);
+}
+:root[data-theme="light"] .wm-tt-rays {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.06s;
+}
+:root[data-theme="light"] .wm-tt-stars {
+  opacity: 0;
+  transform: scale(0.2);
+  transition-delay: 0s;
+}
+@media (hover: hover) {
+  :root:not([data-theme="light"]) .wm-theme-toggle:hover .wm-tt-body {
+    transform: rotate(-18deg);
+  }
+  :root[data-theme="light"] .wm-theme-toggle:hover .wm-tt-rays {
+    transform: rotate(45deg);
+  }
+}
+
+/* ── Motion preferences ───────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Scroll timelines and JS reveals: show content in its final state. */
+  .reveal,
+  .reveal-scale,
+  .stagger-reveal > *,
+  [data-reveal] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .aurora::before,
+  .grid-bg::after,
+  .glow-border::before {
+    animation: none !important;
+  }
+}
+
+/* Ambient loops pause in background tabs (off screen they are paused through the Web
+ * Animations API; src/components/motion/ambient-pauser.tsx). */
+html.wm-hidden *,
+html.wm-hidden *::before,
+html.wm-hidden *::after {
+  animation-play-state: paused !important;
+}
+
+/* While a parallax page scrolls (html[data-scrolling], see scroll-activity.ts), the looping
+ * effects that repaint every frame (gradient text, spinning glow borders) and the big aurora /
+ * grid layers hold still, so phones spend the frame budget on the scroll itself. Unlayered so
+ * it beats the utilities above. */
+html[data-scrolling] .holo-text,
+html[data-scrolling] .glow-border::before,
+html[data-scrolling] .aurora::before,
+html[data-scrolling] .grid-bg::after {
+  animation-play-state: paused;
+}
